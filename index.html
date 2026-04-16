@@ -1,212 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <style>
-            header{
-                display: flex;
-                flex-wrap: wrap;
-                gap:16px;
-                padding: 7px 44px;
-                align-items:center;
-                justify-content: space-between;
 
-            }
-            .status{
-                font-weight: bold;
-                font-size : 25px;
-                color:red;
-            }
-            .mid-status{                
-                display: flex;
-                align-items:center;
-                justify-content: center;
-                gap:15px;
-                border: 1px solid #30363d;
-                border-radius: 10px;
-            }
-            .danger{
-                color:red;
-                border-color:red;
-                background-color:lightcoral
-            }
-            .caution{
-                color:orange;
-                border-color:orange;
-                background-color:lightyellow;
-            }
-            .safe{
-                border-color: green;
-                background-color: lightgreen;
-                color:green;
-            }
-            .mid-status-text{
-                font-size : 25px;
-            }
-            .kpi-row {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 16px;
-                padding: 24px;
-            }
-            .kpi {
-                /*background: #161b22;*/
-                border: 1px solid #30363d;
-                border-radius: 10px;
-                padding: 18px 24px;
-                flex: 1;
-                min-width: 160px;
-                }
-        </style>
-        <script>
-                
-        </script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<head>
+    <style>
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 7px 44px;
+            align-items: center;
+            justify-content: space-between;
 
-        <title>
-            Rideau Canal Status
-        </title>
-    </head>
-    <body>
-        <header>
-            <h1>Rideau Canal Analysis</h1>
-            <div class="status">
-                <p>Status : SAFE</p>
-            </div>
-        </header>
-        <main>
-            <div class="kpi-row">
-                <div class="kpi">
-                    <h2> Location 1</h2>
-                    <div>
-                    <h3>
-                        Ice Thickness:
-                    </h3>
-                    <ul>
-                        <li>
-                            Average:
-                        </li>
-                        <li>Min</li>
-                        <li>Max</li>
-                    </ul>
-                    </div>
-                    <div>
-                    <h3>
-                        Surface Temperature:
-                    </h3>
-                    <ul>
-                        <li>Min</li>
-                        <li>Max</li>
+        }
 
-                    </ul>
-                    </div>
-                    <div>
-                    <h3>
-                        Snow Accumulation:
-                    </h3>
-                    <p>Value</p>
-                    </div>
+        .status {
+            font-weight: bold;
+            font-size: 25px;
+            color: red;
+        }
 
-                    <div>
-                    <h3>
-                        avg External Temperature:
-                    </h3>
-                    <p>Value</p>
-                    </div>
-                    
-                </div>
-                <div class="kpi">
-                    <h2> Location 2</h2>
-                    <div>
-                    <h3>
-                        Ice Thickness:
-                    </h3>
-                    <ul>
-                        <li>
-                            Average:
-                        </li>
-                        <li>Min</li>
-                        <li>Max</li>
-                    </ul>
-                    </div>
-                    <div>
-                    <h3>
-                        Surface Temperature:
-                    </h3>
-                    <ul>
-                        <li>Min</li>
-                        <li>Max</li>
+        .mid-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+        }
 
-                    </ul>
-                    </div>
-                    <div>
-                    <h3>
-                        Snow Accumulation:
-                    </h3>
-                    <p>Value</p>
-                    </div>
+        .danger {
+            color: red;
+            border-color: red;
+            background-color: lightcoral
+        }
 
-                    <div>
-                    <h3>
-                        avg External Temperature:
-                    </h3>
-                    <p>Value</p>
-                    </div>
-                </div>
-                <div class="kpi">
-                    <h2>Location 3</h2>
-                    <div>
-                    <h3>
-                        Ice Thickness:
-                    </h3>
-                    <ul>
-                        <li>
-                            Average:
-                        </li>
-                        <li>Min</li>
-                        <li>Max</li>
-                    </ul>
-                    </div>
-                    <div>
-                    <h3>
-                        Surface Temperature:
-                    </h3>
-                    <ul>
-                        <li>Min</li>
-                        <li>Max</li>
+        .caution {
+            color: orange;
+            border-color: orange;
+            background-color: lightyellow;
+        }
 
-                    </ul>
-                    </div>
-                    <div>
-                    <h3>
-                        Snow Accumulation:
-                    </h3>
-                    <p>Value</p>
-                    </div>
+        .safe {
+            border-color: green;
+            background-color: lightgreen;
+            color: green;
+        }
 
-                    <div>
-                    <h3>
-                        avg External Temperature:
-                    </h3>
-                    <p>Value</p>
-                    </div>
-                </div>
-            </div>  
-            <div class="mid-status danger">
-                <h2>
-                    STATUS:
-                </h2>
-                <p class="mid-status-text">Safe</p>
-            </div>
-            
-            <div>
-                <h2>Historical Data </h2>
+        .mid-status-text {
+            font-size: 25px;
+        }
+
+        .kpi-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 24px;
+        }
+
+        .kpi {
+            /*background: #161b22;*/
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            padding: 18px 24px;
+            flex: 1;
+            min-width: 160px;
+        }
+    </style>
+    <script>
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <title>
+        Rideau Canal Status
+    </title>
+</head>
+
+<body>
+    <header>
+        <h1>Rideau Canal Analysis</h1>
+        <div class="status">
+            <p>Status : SAFE</p>
+        </div>
+    </header>
+    <main>
+        <div class="kpi-row">
+            <div class="kpi">
+                <h2> Location 1</h2>
                 <div>
-                    <canvas id="historyData" width="800" height="400"></canvas>
-                    <script src="backend.js"></script>
+                    <h3>
+                        Ice Thickness:
+                    </h3>
+                    <ul>
+                        <li>
+                            Average:
+                        </li>
+                        <li>Min</li>
+                        <li>Max</li>
+                    </ul>
                 </div>
-            </div>          
-        </main>
-        
-    </body>
-        
+                <div>
+                    <h3>
+                        Surface Temperature:
+                    </h3>
+                    <ul>
+                        <li>Min</li>
+                        <li>Max</li>
+
+                    </ul>
+                </div>
+                <div>
+                    <h3>
+                        Snow Accumulation:
+                    </h3>
+                    <p>Value</p>
+                </div>
+
+                <div>
+                    <h3>
+                        avg External Temperature:
+                    </h3>
+                    <p>Value</p>
+                </div>
+
+            </div>
+            <div class="kpi">
+                <h2> Location 2</h2>
+                <div>
+                    <h3>
+                        Ice Thickness:
+                    </h3>
+                    <ul>
+                        <li>
+                            Average:
+                        </li>
+                        <li>Min</li>
+                        <li>Max</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>
+                        Surface Temperature:
+                    </h3>
+                    <ul>
+                        <li>Min</li>
+                        <li>Max</li>
+
+                    </ul>
+                </div>
+                <div>
+                    <h3>
+                        Snow Accumulation:
+                    </h3>
+                    <p>Value</p>
+                </div>
+
+                <div>
+                    <h3>
+                        avg External Temperature:
+                    </h3>
+                    <p>Value</p>
+                </div>
+            </div>
+            <div class="kpi">
+                <h2>Location 3</h2>
+                <div>
+                    <h3>
+                        Ice Thickness:
+                    </h3>
+                    <ul>
+                        <li>
+                            Average:
+                        </li>
+                        <li>Min</li>
+                        <li>Max</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>
+                        Surface Temperature:
+                    </h3>
+                    <ul>
+                        <li>Min</li>
+                        <li>Max</li>
+
+                    </ul>
+                </div>
+                <div>
+                    <h3>
+                        Snow Accumulation:
+                    </h3>
+                    <p>Value</p>
+                </div>
+
+                <div>
+                    <h3>
+                        avg External Temperature:
+                    </h3>
+                    <p>Value</p>
+                </div>
+            </div>
+        </div>
+        <div class="mid-status danger">
+            <h2>
+                STATUS:
+            </h2>
+            <p class="mid-status-text">Safe</p>
+        </div>
+
+        <div>
+            <h2>Historical Data </h2>
+            <div>
+                <canvas id="historyData" width="800" height="400"></canvas>
+                <script src="backend.js"></script>
+            </div>
+        </div>
+    </main>
+
+</body>
+
 </html>
