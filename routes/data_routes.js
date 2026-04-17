@@ -120,51 +120,44 @@ async function streamToText(readable) {
   return data;
 }
 
-router.get('/get_blob', async (req,res)=>{
-  try{
-    // console.log("get blob");
-    // bloblist = containerClient.listBlobsFlat()
-    // console.log("Blob list")
-    // console.log(bloblist)
-    // console.log("processing")
-    // const timeSet = [...new Set(bloblist.map(p => p.slice(0, p.lastIndexOf("/") + 1)))];
-    // console.log(timeSet)
+router.get('/get_blob', async (req, res) => {
+  try {
+    console.log("Here1");
 
-    // for await (const blob of bloblist) {
-    //   console.log(blob.name);
-    console.log("Here1")
-    bloblist2 = await(getLatestHourFiles("aggregations"));
-    console.log(bloblist2)
+    const bloblist2 = await getLatestHourFiles("aggregations");
+    console.log(bloblist2);
 
-    temp = []
-    for  (const blob of bloblist2){
-        console.log("downloading content ")
-        const blobClient = containerClient.getBlobClient(blob.fullPath);
-        const downloadResponse = await blobClient.download();
-        console.log("Converting stream to text")
-        const raw = await streamToText(downloadResponse.readableStreamBody);
-        console.log("parsing")
+    const temp = [];
 
-        const parsed = JSON.parse(raw);
+    for (const blob of bloblist2) {
+      console.log(`⬇️ Downloading: ${blob.fullPath}`);
 
-        temp.push(parsed);
-        console.log(parsed)
+      const blobClient = containerClient.getBlobClient(blob.fullPath);
+      const downloadResponse = await blobClient.download();
+
+      if (!downloadResponse.readableStreamBody) {
+        throw new Error("No stream returned");
+      }
+
+      console.log("Converting stream to text...");
+      const raw = await streamToText(downloadResponse.readableStreamBody);
+
+      console.log("Parsing JSON...");
+      const parsed = raw
+        .split('\n')
+        .filter(line => line.trim() !== '')
+        .map(line => JSON.parse(line));
+
+      temp.push(parsed);
     }
-    console.log("Finish combining")
+
+    console.log("✅ Finished combining");
     console.log(temp)
+    res.status(200).json(temp);
 
-    // loop throu each file 
-      // download each file
-      // convert values to text 
-      // convert values to json 
-      // combine the contents  fo the different files into single json
-    // process data and send data to the charts 
-
-  
-    res.json(200);
-  }
-  catch(err){
-    res.status(500).json({ error: err.message });
+  } catch (err) {
+    console.error("❌ Error:", err);
+    res.status(500).send(err.message);
   }
 });
 
