@@ -145,10 +145,123 @@ function create_chart(ctx){
 
 async function update_chart(){
   fetch("/get_blob").then(res => res.json())
-    .then(cosmo_response => {
-      renderCosmoUpdate(cosmo_response);
+    .then(blob_response => {
+      renderChartUpdates(blob_response);
     })
     .catch(err => console.error("Poll error:", err));
+}
+
+
+function renderChartUpdates(blob_response){
+
+}
+
+function processChartData(data_response){
+  let processed={
+    "status":{
+      "DowsLake":[],
+      "FifthAvenue":[],
+      "NAC":[]
+    },
+    "ice":{
+      "DowsLake":{ min:[], max:[], avg:[] },
+      "FifthAvenue":{ min:[], max:[], avg:[] },
+      "NAC":{
+        min:[],
+        max:[],
+        avg:[]
+      }
+    },
+    "snow":{
+      "DowsLake":[],
+      "FifthAvenue":[],
+      "NAC":[]
+    },
+    "temp":{
+      "DowsLake":{
+        min:[],
+        max:[],
+        external:[]
+      },
+      "FifthAvenue":{
+        min:[],
+        max:[],
+        external:[]
+      },        
+      "NAC":
+        {
+          min:[],
+          max:[],
+          external:[]
+        }
+      
+    }  ,
+    "timestamp":[]
+  }
+  for (data in data_response){
+    for(chunk in data){
+      processed["status"][chunk.location].push(chunk.status);
+      processed["timestamp"].push(chunk.dateTimeStamp);
+      processed["ice"][chunk.location]["min"].push(chunk.minThickness);
+      processed["ice"][chunk.location]["max"].push(chunk.maxThickness);
+      processed["ice"][chunk.location]["avg"].push(chunk.avgIceThickness);
+      processed["snow"][chunk.location].push(chunk.snowAccumulation);
+      processed["temp"][chunk.location]["min"].push(chunk.minSurface);
+      processed["temp"][chunk.location]["max"].push(chunk.maxSurface);
+      processed["temp"][chunk.location]["external"].push(chunk.avgExternalTemperature);
+    }
+  }
+
+  /*
+  return: 
+  processed={
+    "status":{
+      "dowslake":[],
+      "fifthavenue":[],
+      "NAC":[],
+      "timestamp":[]
+    },
+    "ice":{
+      "dowslake"::{
+        min:[],
+        max:[],
+        avg:[]
+      },,
+      "fifthavenue"::{
+        min:[],
+        max:[],
+        avg:[]
+      },,
+      "NAC"::{
+        min:[],
+        max:[],
+        avg:[]
+      },,
+      "timestamp":[]
+    },
+    "snow":{
+      "dowslake":[],
+      "fifthavenue":[],
+      "NAC":[],
+      "timestamp":[]
+    },
+    "temp":{
+      "dowslake"::{
+        min:[],
+        max:[],
+        external:[]
+      },,
+      "fifthavenue":min:[],
+        max:[],
+        external:[],
+      "NAC":min:[],
+        max:[],
+        external:[],
+      "timestamp":[]
+    },
+  
+  }
+  */
 }
 
 let historyChart;
