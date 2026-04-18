@@ -200,13 +200,26 @@ function create_scatter_chart(ctx,){
         legend: { position: 'top' },
         title:  { display: true},
 
-        // AI created tool tip for hovering
+        // AI helped create tool tip for hovering
         tooltip: {
           callbacks: {
             label: function(context) {
-              const stateNames = { 1: 'Ready', 0.5: 'Loading', 0: 'Not Ready' };
-              const stateName  = stateNames[context.parsed.y] ?? context.parsed.y;
-              const time       = new Date(context.parsed.x).toLocaleTimeString();
+              //const stateNames = { 1: 'Ready', 0.5: 'Loading', 0: 'Not Ready' };
+              //const stateName  = stateNames[context.parsed.y] ?? context.parsed.y;
+              let stateName;
+              if(context.parsed.y===1){
+                stateName  = 'Ready';
+              }
+              else if(context.parsed.y === 0.5){
+                stateName  = 'Loading';
+              }
+              else if(context.parsed.y ===0){
+                stateName  = 'Not Ready';
+              }
+              else{
+                stateName = context.parsed.y;
+              }
+              const time = new Date(context.parsed.x).toLocaleTimeString();
               return `${context.dataset.label} — ${stateName} at ${time}`;
             }
           }
@@ -216,7 +229,7 @@ function create_scatter_chart(ctx,){
         
         x:{type:'time',stepSize: 5,  },
 
-        // ai generated y axis relabelling
+        // ai helped with y axis relabelling
         y: {
           min: -0.2,   // a little padding below 0
           max:  1.2,   // a little padding above 1
@@ -224,11 +237,23 @@ function create_scatter_chart(ctx,){
             // Only show ticks at your 3 values, nowhere else
             stepSize: 0.5,
             callback: function(value) {
-              const labels = { 1: 'Ready', 0.5: 'Loading', 0: 'Not Ready' };
-              return labels[value] ?? '';
+              let label;
+              if(value===1){
+                label  = 'Ready';
+              }
+              else if(value === 0.5){
+                label  = 'Loading';
+              }
+              else if(value ===0){
+                label  = 'Not Ready';
+              }
+              else{
+                label = '';
+              }
+              return label;
             }
           },
-          title: { display: true, text: 'Machine State' }
+          title: { display: true, text: 'Status' }
         }
       }
     }
@@ -478,4 +503,4 @@ function initialize_charts(){
     
 }
   initialize_charts();
-  //setInterval(fetchAndRender,POLL_INTERVAL_MS)
+  setInterval(fetchAndRender,POLL_INTERVAL_MS)
