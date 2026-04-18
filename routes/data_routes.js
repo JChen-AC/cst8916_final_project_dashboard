@@ -35,84 +35,66 @@ router.get('/get_cosmodb', async (req,res)=>{
 });
 
 
-//AI Generated function to find the
+//AI used as a reference but modified 
 async function getLatestSegment(containerClient, prefix) {
-  console.log("Here3")
+  let highestName = null;
+  let highestFullPrefix = null;
 
-  const numbers = [];
-  let highest = 0;
-  let highest_folder = null;
   const subfolders = containerClient.listBlobsByHierarchy("/", { prefix });
-  console.log(prefix)
 
-  for await (const item of subfolders) {
-    console.log(item)
-    if (item.kind === "prefix") {
-      // Extract the segment name (e.g. "2026/", "04/", "16/", "20/")
-      const segment = item.name.slice(prefix.length).replace("/", "");
-      console.log(segment)
-      if(highest_folder === null){
-        highest_folder = segment;
-      }
-      else{
-        const result = segment.localeCompare(highest_folder, undefined, { numeric: true });
-        if (result >0){
-          highest_folder = segment;
-        }        
+  for await (const folder of subfolders) {
+    if (folder.kind === "prefix") {
+      const segment = folder.name.slice(prefix.length).replace("/", "");
+
+      if (highestName === null) {
+        highestName = segment;
+        highestFullPrefix = folder.name;
+      } else {
+        const result = segment.localeCompare(highestName, undefined, { numeric: true });
+        if (result > 0) {
+          highestName = segment;
+          highestFullPrefix = folder.name;
+        }
       }
     }
   }
 
-  if (highest_folder === null) return null;
-  return highest_folder
+  if (highestName === null) return null;
 
+  return { name: highestName, fullPrefix: highestFullPrefix };
 }
-
+//AI Generated function to find the
 async function getLatestHourFiles(rootPrefix = "root/") {
   //const containerClient = blobServiceClient.getContainerClient(containerName);
   console.log("Here2")
   // Step 1 — Latest year
-  let path = rootPrefix
-  const latestYear  = await getLatestSegment(containerClient, path);
-  if (!latestYear){
-    console.log("year is null")
-     return []
-  } ;
-  console.log(`📅 Latest year  : ${latestYear}`);
-  path+=latestYear+'/';
+  const latestYear  = await getLatestSegment(containerClient, rootPrefix);
+  if (!latestYear)  return [];
+  console.log(`📅 Latest year  : ${latestYear.name}`);
 
   // Step 2 — Latest month
-  const latestMonth = await getLatestSegment(containerClient, path);
-  if (!latestMonth){
-    console.log("month is null")
-     return []
-  } ;
-  console.log(`📅 Latest month : ${latestMonth}`);
-  path+=latestMonth+'/'
+  const latestMonth = await getLatestSegment(containerClient, latestYear.fullPrefix);
+  if (!latestMonth) return [];
+  console.log(`📅 Latest month : ${latestMonth.name}`);
+
   // Step 3 — Latest day
-  const latestDay   = await getLatestSegment(containerClient, path);
-  if (!latestDay){
-    console.log("day is null")
-     return []
-  } ;
-  console.log(`📅 Latest day   : ${latestDay}`);
-  path+=latestDay+'/'
+  const latestDay   = await getLatestSegment(containerClient, latestMonth.fullPrefix);
+  if (!latestDay)   return [];
+  console.log(`📅 Latest day   : ${latestDay.name}`);
+
   // Step 4 — Latest hour
-  const latestHour  = await getLatestSegment(containerClient, path);
-  if (!latestHour){
-    console.log("hour is null")
-     return []
-  } ;
-  console.log(`📅 Latest hour  : ${latestHour}`);
-  path+=latestHour+'/'
-  console.log(`\n✅ Latest path  : ${path}`);
+  const latestHour  = await getLatestSegment(containerClient, latestDay.fullPrefix);
+  if (!latestHour)  return [];
+  console.log(`📅 Latest hour  : ${latestHour.name}`);
+
+  console.log(`\n✅ Latest path  : ${latestHour.fullPrefix}`);
   console.log("─".repeat(50));
 
   // Step 5 — List all files in the latest hour folder
   const files = [];
 
-  for await (const blob of containerClient.listBlobsFlat({ prefix: path })) {
-    const fileName = blob.name.slice(path.length);
+  for await (const blob of containerClient.listBlobsFlat({ prefix: latestHour.fullPrefix })) {
+    const fileName = blob.name.slice(latestHour.fullPrefix.length);
     files.push({
       fileName,
       fullPath : blob.name,
@@ -120,7 +102,6 @@ async function getLatestHourFiles(rootPrefix = "root/") {
       size     : blob.properties.contentLength
     });
     console.log(`📄 ${fileName}`);
-    // can just return a list of files, don't need this human readable version
   }
 
   console.log(`\nTotal: ${files.length} file(s) in latest hour`);
