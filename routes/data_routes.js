@@ -5,8 +5,14 @@ const fs = require("fs");
 const express = require('express');
 const router = express.Router();
 
+
+/*
+
+Set up CosmoDB and Blob Storage Clients 
+
+*/
 const client = new CosmosClient({
-  endpoint: process.env.COSMOS_ENDPOINT,   // e.g. https://your-account.documents.azure.com:443/
+  endpoint: process.env.COSMOS_ENDPOINT, 
   key: process.env.COSMOS_KEY
 });
 
@@ -19,14 +25,17 @@ const blobServiceClient = BlobServiceClient.fromConnectionString(
 const containerClient = blobServiceClient.getContainerClient(process.env.BLOB_CONTAINER);
 
 
+/*
 
+Handling CosmoDB 
+
+*/
 router.get('/get_cosmodb', async (req, res) => {
   try {
-    console.log("HEre")
+    // gets the top 3 data points from the database with the data appearing in descending order based on the time 
+    // reason for top 3 is one for each location
     const { resources } = await container.items.query("SELECT TOP 3 * FROM c  ORDER BY c.dateTimeStamp DESC").fetchAll();
-    //console.log("THere")
     res.json(resources);
-    //console.log("end")
   }
   catch (err) {
     console.log("error: ", err.message)
@@ -35,13 +44,22 @@ router.get('/get_cosmodb', async (req, res) => {
 });
 
 
+
+/*
+
+Handling Blob storage
+
+*/
 //AI used as a reference but modified 
 async function getLatestSegment(containerClient, prefix) {
+  // determine which folder is the newest
   let highestName = null;
   let highestFullPrefix = null;
 
   const subfolders = containerClient.listBlobsByHierarchy("/", { prefix });
+  // get all subfolder names in the folder 
 
+  // loop through each folder and comparing them based on their number to see the newest/highest number 
   for await (const folder of subfolders) {
     if (folder.kind === "prefix") {
       const segment = folder.name.slice(prefix.length).replace("/", "");
@@ -60,47 +78,37 @@ async function getLatestSegment(containerClient, prefix) {
   }
 
   if (highestName === null) return null;
-
   return { name: highestName, fullPrefix: highestFullPrefix };
 }
+
+
 //AI Generated function to find the
 async function getLatestHourFiles(rootPrefix = "root/") {
-  //const containerClient = blobServiceClient.getContainerClient(containerName);
-  console.log("Here2")
+  // gets the latest files in the blob storage (since should only handle last hour)
+  
   // Step 1 — Latest year
   const latestYear = await getLatestSegment(containerClient, rootPrefix);
   if (!latestYear) return [];
-  console.log(`📅 Latest year  : ${latestYear.name}`);
 
   // Step 2 — Latest month
   const latestMonth = await getLatestSegment(containerClient, latestYear.fullPrefix);
   if (!latestMonth) return [];
-  console.log(`📅 Latest month : ${latestMonth.name}`);
 
   // Step 3 — Latest day
   const latestDay = await getLatestSegment(containerClient, latestMonth.fullPrefix);
   if (!latestDay) return [];
-  console.log(`📅 Latest day   : ${latestDay.name}`);
 
   // Step 4 — Latest hour
   const latestHour = await getLatestSegment(containerClient, latestDay.fullPrefix);
   if (!latestHour) return [];
-  console.log(`📅 Latest hour  : ${latestHour.name}`);
-
-  console.log(`\n✅ Latest path  : ${latestHour.fullPrefix}`);
-  console.log("─".repeat(50));
 
   // Step 5 — List all files in the latest hour folder
   const files = [];
 
+  // modified code from the ai generated code
+  // gets the files from the folder that was found to be the latest
   for await (const blob of containerClient.listBlobsFlat({ prefix: latestHour.fullPrefix })) {
     const fileName = blob.name.slice(latestHour.fullPrefix.length);
-    /*files.push({
-      fileName,
-      fullPath : blob.name,
-      modified : blob.properties.lastModified,
-      size     : blob.properties.contentLength
-    });*/
     files.push(blob.name)
     console.log(`📄 ${fileName}`);
   }
@@ -109,6 +117,9 @@ async function getLatestHourFiles(rootPrefix = "root/") {
   return files;
 }
 
+
+// Microsoft function
+// convert stream data to text 
 async function streamToText(readable) {
   readable.setEncoding('utf8');
   let data = '';
@@ -118,19 +129,20 @@ async function streamToText(readable) {
   return data;
 }
 
+
 router.get('/get_blob', async (req, res) => {
-  try {
-    console.log("Here1");
+  // route to get blob information
+  try {    
 
+    // get list of blob files 
     const bloblist2 = await getLatestHourFiles("aggregations");
-    console.log(bloblist2);
 
-    const temp = [];
+    const blob_data = [];
 
     for (const blob of bloblist2) {
-      console.log(`⬇️ Downloading: ${blob}`);
-
+      // connect to blob object based on the file path 
       const blobClient = containerClient.getBlobClient(blob);
+      // download each blob 
       const downloadResponse = await blobClient.download();
 
       if (!downloadResponse.readableStreamBody) {
@@ -140,19 +152,17 @@ router.get('/get_blob', async (req, res) => {
       console.log("Converting stream to text...");
       const raw = await streamToText(downloadResponse.readableStreamBody);
 
-      console.log("Parsing JSON...");
       // AI
+      // converts the gotten data into json
       const parsed = raw
         .split('\n')
         .filter(line => line.trim() !== '')
         .map(line => JSON.parse(line));
       // END AI 
-      temp.push(parsed);
+      blob_data.push(parsed);
     }
 
-    console.log("✅ Finished combining");
-    console.log(temp)
-    res.status(200).json(temp);
+    res.status(200).json(blob_data);
 
   } catch (err) {
     console.error("❌ Error:", err);
@@ -161,7 +171,9 @@ router.get('/get_blob', async (req, res) => {
 });
 
 async function checkCosmo() {
+  // checks to see if connection with cosmodb is still good 
   try {
+    // execute quick read function on the cosmodb to see if still connected 
     await container.read();
     return true;
   }
@@ -170,8 +182,17 @@ async function checkCosmo() {
   }
 }
 
+/*
+
+Update page status
+
+*/
+
 async function checkBlob() {
+  // checks to see if connection with blob container is still good 
+
   try {
+    // checks to see if the blob container clients still exist 
     const exists = await containerClient.exists();
     if (exists) {
       return true;
@@ -183,22 +204,28 @@ async function checkBlob() {
   }
 }
 
+// route to update page status 
 router.get('/check_connection', async (req, res) => {
+  // get connection status 
   let cosmoHealth = await checkCosmo();
   let blobHealth = await checkBlob();
+
+  // checks to see if both are still connected 
   if (cosmoHealth && blobHealth) {
     console.log("Inner : live")
-    res.status(200).json({ status: 'live' }); // AI helped with the json
+    res.status(200).json({ status: 'live' }); // AI helped with the json (how to format the return)
   }
   else {
     console.log("Inner : down")
-    res.status(201).json({ status: 'down' });   // AI helped with the json
+    res.status(201).json({ status: 'down' });   // AI helped with the json (how to format the return)
   }
-
 })
 
+// general health check 
 router.get('/health', async (req, res) => {
   res.status(200, "Health")
 })
 
+
+// export the routes 
 module.exports = router;
