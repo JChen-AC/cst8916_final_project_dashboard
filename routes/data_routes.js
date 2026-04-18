@@ -95,12 +95,13 @@ async function getLatestHourFiles(rootPrefix = "root/") {
 
   for await (const blob of containerClient.listBlobsFlat({ prefix: latestHour.fullPrefix })) {
     const fileName = blob.name.slice(latestHour.fullPrefix.length);
-    files.push({
+    /*files.push({
       fileName,
       fullPath : blob.name,
       modified : blob.properties.lastModified,
       size     : blob.properties.contentLength
-    });
+    });*/
+    files.push(blob.name)
     console.log(`📄 ${fileName}`);
   }
 
@@ -127,9 +128,9 @@ router.get('/get_blob', async (req, res) => {
     const temp = [];
 
     for (const blob of bloblist2) {
-      console.log(`⬇️ Downloading: ${blob.fullPath}`);
+      console.log(`⬇️ Downloading: ${blob}`);
 
-      const blobClient = containerClient.getBlobClient(blob.fullPath);
+      const blobClient = containerClient.getBlobClient(blob);
       const downloadResponse = await blobClient.download();
 
       if (!downloadResponse.readableStreamBody) {
