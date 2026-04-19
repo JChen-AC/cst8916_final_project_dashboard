@@ -110,7 +110,7 @@ async function getLatestHourFiles(rootPrefix = "root/") {
   for await (const blob of containerClient.listBlobsFlat({ prefix: latestHour.fullPrefix })) {
     const fileName = blob.name.slice(latestHour.fullPrefix.length);
     files.push(blob.name)
-    console.log(`📄 ${fileName}`);
+    console.log(`${fileName}`);
   }
 
   console.log(`\nTotal: ${files.length} file(s) in latest hour`);

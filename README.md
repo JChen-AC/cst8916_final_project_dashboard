@@ -1,7 +1,13 @@
 # cst8916_final_project_dashboard
 
 ## Student information
+**Student Name**: Joshua Chen
 
+**Student ID**: 041280453
+
+**Course**: CST8916 Remote Data and Real Time Application
+
+**Semester**: Winter 2026
 ## Overview
 
 This is the dashboard for the Rideau Canal project. 
