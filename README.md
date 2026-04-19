@@ -33,15 +33,15 @@ To run it in the cloud, an Azure App Service needs to be set up.
 
 ## Installation
 
-## Local 
+### Local 
 1) Clone the repository 
-    git clone 
+    git clone https://github.com/JChen-AC/cst8916_final_project_dashboard.git
 
 2) Cd into the project folder
 3) Download the required packages
     npm install 
 
-## Configuration
+### Configuration
 
 1) Create .env file
 2) Add environment variables 
