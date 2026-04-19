@@ -65,6 +65,7 @@ returns a Json version of the aggregate data, or a 500 if something goes wrong
 
 Connects to the Azure CosmoDB 
 
+See sample_cosmodb_response.js for sample response
 
 ### GET /get_blob
 Method : GET
@@ -73,6 +74,8 @@ Description: Used to get the historical data from Azure Blob Storage. It looks t
 returns a json version of the historical data or a 500 if there is an error
 
 Connects to the Azure Blob Storage
+
+See sample_blob_response.txt for sample response
 
 ### GET /check_connection
 Method : GET
